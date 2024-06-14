@@ -8,5 +8,5 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 #USER airflow
 
-RUN pip install GeoAlchemy2 tuspy lxml retry geopandas oracledb apache-airflow-providers-oracle[common.sql]  apache-airflow-providers-databricks[common.sql]
-USER airflow
+#RUN pip install GeoAlchemy2 tuspy lxml retry geopandas oracledb apache-airflow-providers-oracle[common.sql]  apache-airflow-providers-databricks[common.sql]
+RUN pip install  tuspy lxml retry oracledb apache-airflow-providers-oracle[common.sql]  apache-airflow-providers-databricks[common.sql]
