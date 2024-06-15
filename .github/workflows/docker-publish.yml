@@ -88,5 +88,5 @@ jobs:
         run: |
           for dir in */; do
             dir=${dir%/}
-            cosign sign --yes ${{ env.REGISTRY }}/${{ github.repository }}/$dir@${DIGEST}
+            cosign sign --yes ${{ env.REGISTRY }}/${{ github.repository }}/$dir@${{ steps.build-and-push.outputs.digest }}
           done
