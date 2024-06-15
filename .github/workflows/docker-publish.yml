@@ -69,24 +69,21 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker images
+        id: build_and_push
         run: |
           for dir in */; do
             dir=${dir%/}
             echo "Building and pushing Docker image for directory $dir"
-            docker buildx build --platform linux/arm64 --push -t ${{ env.REGISTRY }}/${{ github.repository }}/$dir:latest $dir
+            docker buildx build --platform linux/arm64 --push -t ${{ env.REGISTRY }}/${{ github.repository }}/$dir:latest $dir | tee -a /tmp/build_output.log
+            digest=$(tail -n 1 /tmp/build_output.log | grep digest | awk '{print $2}')
+            echo "::set-output name=digest_${dir}::${digest}"
           done
 
       - name: Sign the published Docker images
         if: ${{ github.event_name != 'pull_request' }}
-
-        env:
-          # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
         run: |
           for dir in */; do
             dir=${dir%/}
-            cosign sign --yes ${{ env.REGISTRY }}/${{ github.repository }}/$dir@${{ steps.build-and-push.outputs.digest }}
+            digest=${{ steps.build_and_push.outputs['digest_'$dir] }}
+            cosign sign --yes ${{ env.REGISTRY }}/${{ github.repository }}/$dir@${digest}
           done
