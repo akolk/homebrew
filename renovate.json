@@ -4,7 +4,10 @@
   "extends": [
     "config:base"
   ],
-  "automerge": true,
-  "automergeType": "branch",
-  "automergeStrategy": "merge"
+  "packageRules": [
+    {
+      "updateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    }
+  ]
 }
